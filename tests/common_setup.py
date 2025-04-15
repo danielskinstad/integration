@@ -20,6 +20,10 @@ from . import conftest
 
 from .MenderAPI import authentication, auth, devauth, reset_mender_api, DeviceAuthV2
 
+import logging
+logger = logging.getLogger("gateway-tests")
+
+
 from testutils.common import User, new_tenant_client
 from testutils.infra.cli import CliTenantadm
 from testutils.infra.device import MenderDevice, MenderDeviceGroup
@@ -86,18 +90,26 @@ def standard_setup_one_client_bootstrapped_with_gateway(request):
     env = container_factory.get_standard_setup_with_gateway(num_clients=1)
     request.addfinalizer(env.teardown)
 
+    logger.info("Her er jeg 1")
     env.setup()
 
     env.device = MenderDevice(env.get_mender_clients(network="mender_local")[0])
+    logger.info("Her er jeg 2")
     env.device.ssh_is_opened()
+    logger.info("Her er jeg 3")
     env.device_gateway = MenderDevice(env.get_mender_gateways(network="mender")[0])
+    logger.info("Her er jeg 4")
     env.device_gateway.ssh_is_opened()
+    logger.info("Her er jeg 5")
 
     reset_mender_api(env)
+    logger.info("Her er jeg 6")
     # Two devices: the client device and the gateway device (which also runs mender client)
     devauth.accept_devices(2)
+    logger.info("Her er jeg 7")
 
     env.auth = auth
+    logger.info("Her er jeg 8")
     return env
 
 

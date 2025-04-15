@@ -140,7 +140,7 @@ class DockerComposeStandardSetup(DockerComposeNamespace):
         super().__init__(name, self.QEMU_CLIENT_FILES)
 
     def setup(self):
-        self._docker_compose_cmd("up -d --scale mender-client=%d" % self.num_clients)
+        self._docker_compose_cmd("--verbose up -d --scale mender-client=%d" % self.num_clients)
         self._wait_for_containers()
 
 
@@ -152,7 +152,7 @@ class DockerComposeStandardSetupWithGateway(DockerComposeNamespace):
         )
 
     def setup(self):
-        self._docker_compose_cmd("up -d --scale mender-client=%d" % self.num_clients)
+        self._docker_compose_cmd("--verbose up -d --scale mender-client=%d" % self.num_clients)
         self._wait_for_containers()
 
 
@@ -169,7 +169,7 @@ class DockerComposeMonitorCommercialSetup(DockerComposeNamespace):
             )
 
     def setup(self, recreate=True, env=None):
-        cmd = "up -d"
+        cmd = "--verbose up -d"
         if not recreate:
             cmd += " --no-recreate"
         self._docker_compose_cmd(cmd, env=env)
