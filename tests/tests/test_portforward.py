@@ -31,22 +31,18 @@ from .mendertesting import MenderTesting
 
 # Function must be defined outside of class so it can be pickled
 def port_forward(server_url, dev_id, port_mapping, *port_mappings):
-    p = subprocess.Popen(
+    return subprocess.check_call(
         [
             "mender-cli",
             "--skip-verify",
             "--server",
             server_url,
             "port-forward",
-            devid,
+            dev_id,
             port_mapping,
         ]
         + list(port_mappings),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
     )
-    stdout, stderr = p.communicate()
-    p.wait()
 
 
 class BaseTestPortForward(MenderTesting):
@@ -60,7 +56,7 @@ class BaseTestPortForward(MenderTesting):
         server_url = "https://" + get_container_manager().get_mender_gateway()
         username = auth.username
         password = auth.password
-        p = subprocess.Popen(
+        proc = subprocess.check_call(
             [
                 "mender-cli",
                 "--skip-verify",
@@ -71,13 +67,9 @@ class BaseTestPortForward(MenderTesting):
                 username,
                 "--password",
                 password,
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            ]
         )
-        stdout, stderr = p.communicate()
-        exit_code = p.wait()
-        assert exit_code == 0, (stdout, stderr)
+        assert proc == 0, (proc.stdout, proc.stderr)
 
         pfw = Process(
             target=port_forward,
@@ -111,7 +103,7 @@ class BaseTestPortForward(MenderTesting):
 
             # upload the file using scp
             logger.info("uploading the file to the device using scp")
-            p = subprocess.Popen(
+            proc = subprocess.check_call(
                 [
                     "scp",
                     "-O",
@@ -124,16 +116,12 @@ class BaseTestPortForward(MenderTesting):
                     f.name,
                     "root@localhost:/tmp/random.bin",
                 ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
             )
-            stdout, stderr = p.communicate()
-            exit_code = p.wait()
-            assert exit_code == 0, (stdout, stderr)
+            assert proc == 0, (proc.stdout, proc.stderr)
 
             # download the file using scp
             logger.info("download the file from the device using scp")
-            p = subprocess.Popen(
+            proc = subprocess.check_call(
                 [
                     "scp",
                     "-O",
@@ -146,12 +134,8 @@ class BaseTestPortForward(MenderTesting):
                     "root@localhost:/tmp/random.bin",
                     f.name + ".download",
                 ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
             )
-            stdout, stderr = p.communicate()
-            exit_code = p.wait()
-            assert exit_code == 0, (stdout, stderr)
+            assert proc == 0, (proc.stdout, proc.stderr)
 
             # assert the files are not corrupted
             logger.info("checking the checksums of the uploaded and downloaded files")
