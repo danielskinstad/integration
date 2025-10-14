@@ -238,8 +238,6 @@ services:
     extends:
       file: common.yml
       service: mender-base
-    tmpfs:
-      - /data/db:size=1G
     networks:
       mender:
         aliases:
